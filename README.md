@@ -1,4 +1,4 @@
-# Social Democracy: An Alternate History
+# The Road to Paradise
 
 ## Included Libraries
 
