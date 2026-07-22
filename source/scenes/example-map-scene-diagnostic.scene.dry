@@ -9,5 +9,3 @@ title: The Political Map of California
 The state's districts, colored by the party currently holding each seat.
 
 {!<div class="ca-map-mount" style="border:2px dashed red;min-height:40px;padding:8px;font:12px monospace;color:#900;">MOUNT POINT PLACEHOLDER — if this red box never disappears, the div rendered but the JS never ran.</div>!}
-
-- @next_scene: Continue
