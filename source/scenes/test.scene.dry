@@ -1,0 +1,28 @@
+title: Electoral Map
+subtitle: Map
+view-if: year = 1928 and month >= 2
+new-page: true
+max-visits: 1
+tags: event
+
+@ca_map_scene
+title: The Political Map of California
+
+The state's districts, colored by the party currently holding each seat.
+
+{!<div id="ca-map-container" style="margin: 12px 0;"></div>!}
+{!<script>
+  // Runs once the scene's HTML is inserted into the page.
+  // Safe to call again if the player revisits this scene — the container is cleared each time.
+  renderCADistrictMap("#ca-map-container", {
+    width: 640,
+    height: 720,
+    onClick: function(d) {
+      // Example hook: stash the clicked district number into a Dendry quality
+      // so later scenes/choices can reference it.
+      dendryUI.dendryEngine.state.qualities["selected_district"] = d.properties.DISTRICT;
+    }
+  });
+</script>!}
+
+- @next_scene: Continue
