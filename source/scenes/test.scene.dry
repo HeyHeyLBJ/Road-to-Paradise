@@ -57,4 +57,3 @@ The state's districts, colored by the party currently holding each seat.
   thisScript.parentNode.insertBefore(svg.node(), thisScript);
 })();
 </script>!}
-
