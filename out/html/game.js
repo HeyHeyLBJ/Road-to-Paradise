@@ -206,6 +206,9 @@
 
   window.onDisplayContent = function() {
       window.updateSidebar();
+      if (window.renderCaMapMounts) {
+          window.renderCaMapMounts();
+      }
   };
 
   /*
