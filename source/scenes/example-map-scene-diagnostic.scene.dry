@@ -1,7 +1,7 @@
 @ca_map_scene
 title: The Political Map of California
 subtitle: Map
-view-if: year = 1928 and month >= 4
+view-if: year = 1928 and month >= 3
 new-page: true
 max-visits: 1
 tags: event
