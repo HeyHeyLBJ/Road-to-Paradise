@@ -1,7 +1,7 @@
-@ca_map2_scene
+@ca_poll_test_scene
 title: National Polling — District Test
 subtitle: Map
-view-if: year = 1928 and month >= 2
+view-if: true
 new-page: true
 max-visits: 1
 tags: event
@@ -19,8 +19,6 @@ on-display: {!
         Other: { name: "Other", color: "#8C8C8C" }
     };
 
-    // Pull real national polling straight from the qualities your
-    // Saxony scene already uses, instead of making up random numbers.
     var partyShare = {
         SPD: Q.spd_votes || 0,
         KPD: Q.kpd_votes || 0,
@@ -81,30 +79,44 @@ on-display: {!
         .append("title")
             .text(function(d) { return "District " + d.properties.DISTRICT + " — " + PARTIES[d.properties.PARTY].name; });
 
-    // --- seat tally / legend ---
+    // --- seat counts + vote share, feeding both the table and the hemicycle ---
     var seatCounts = {};
     for (var k2 in PARTIES) seatCounts[k2] = 0;
     geojson.features.forEach(function(f) { seatCounts[f.properties.PARTY]++; });
 
-    var tallyHtml = "";
+    var totalSeats = geojson.features.length;
+
+    // --- results table, styled like the Saxony scene's party table ---
+    var tableHtml = "<table>";
+    tableHtml += "<tr><td>Party</td><td>Vote share</td><td>Districts won</td></tr>";
     for (var k3 in PARTIES) {
         if (!seatCounts[k3]) continue;
-        tallyHtml += "<div style='display:flex;align-items:center;gap:8px;margin-bottom:4px;'>" +
-            "<span style='display:inline-block;width:12px;height:12px;border-radius:50%;background:" + PARTIES[k3].color + ";'></span>" +
-            "<span style='flex:1;'>" + PARTIES[k3].name + "</span>" +
-            "<strong>" + seatCounts[k3] + "</strong></div>";
+        var voteShare = ((partyShare[k3] / totalShare) * 100).toFixed(1);
+        var seatShare = ((seatCounts[k3] / totalSeats) * 100).toFixed(1);
+        tableHtml += "<tr><td><div class='box' style='background-color:" + PARTIES[k3].color + "; outline: 2px; outline-style: solid;'> </div> </td>" +
+            "<td>" + PARTIES[k3].name + ": " + voteShare + "%</td>" +
+            "<td>" + seatCounts[k3] + " (" + seatShare + "%)</td></tr>";
     }
-    document.getElementById("ca-poll-tally").innerHTML = tallyHtml;
+    tableHtml += "</table>";
+    document.getElementById("ca-poll-tally").innerHTML = tableHtml;
 
-    // --- parliament hemicycle, same seat counts ---
+    // --- parliament hemicycle, same seat counts, same visual convention as Saxony ---
     if (window && d3 && d3.parliament) {
+        var width2 = 500;
+        var height2 = 500;
+        var screenWidth = document.getElementById('content').offsetWidth;
+        if (screenWidth < width2 - 50) {
+            width2 = screenWidth - 50;
+            height2 = width2;
+            document.getElementById("ca-poll-hemicycle").style.height = screenWidth/2 + "px";
+        }
         var hemiData = [];
         for (var k4 in PARTIES) {
             if (!seatCounts[k4]) continue;
             hemiData.push({ id: k4, legend: PARTIES[k4].name, name: PARTIES[k4].name, seats: seatCounts[k4] });
         }
         var parliament = d3.parliament();
-        parliament.width(280).height(160).innerRadiusCoef(0.4);
+        parliament.width(width2).height(height2).innerRadiusCoef(0.4);
         parliament.enter.fromCenter(true).smallToBig(true);
         parliament.exit.toCenter(false).bigToSmall(true);
         d3.select("#ca-poll-hemicycle").datum(hemiData).call(parliament);
@@ -119,15 +131,14 @@ A test run of the district map, driven by the current national polling numbers i
 
 {!<svg id="ca-poll-svg" style="width: 100%; max-width: 640px; height: 720px; display: block;"> </svg>!}
 
-**Seat tally**
+**Results:**
+
+{!<svg id="ca-poll-hemicycle" style="width: 500px; height: 250px;"> </svg>!}
 
 {!<div id="ca-poll-tally"></div>!}
-
-**Parliament view**
-
-{!<svg id="ca-poll-hemicycle" width="280" height="160"> </svg>!}
-
+<hr id="read-marker">
 **District detail**
 
 {!<div id="ca-poll-detail">Click a district on the map above.</div>!}
 
+- @next_scene: Continue
