@@ -2,6 +2,7 @@ title: California Districts
 view-if: year = 1928 and month >= 2
 new-page: true
 max-visits: 1
+tags: event
 
 @ca_map_scene
 title: The Political Map of California
