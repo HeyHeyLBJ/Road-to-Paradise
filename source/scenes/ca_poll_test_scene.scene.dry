@@ -1,4 +1,4 @@
-@ca_poll_test_scene
+
 title: National Polling — District Test
 subtitle: Map
 view-if: year = 1928 and month >= 2
