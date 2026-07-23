@@ -1,7 +1,7 @@
 @ca_poll_test_scene
 title: National Polling — District Test
 subtitle: Map
-view-if: true
+view-if: year = 1928 and month >= 2
 new-page: true
 max-visits: 1
 tags: event
@@ -140,5 +140,3 @@ A test run of the district map, driven by the current national polling numbers i
 **District detail**
 
 {!<div id="ca-poll-detail">Click a district on the map above.</div>!}
-
-- @next_scene: Continue
