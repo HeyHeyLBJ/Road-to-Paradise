@@ -46,4 +46,4 @@ on-arrival:{!
 
 The state's districts, colored by the party currently holding each seat.
 
-{!<svg id="ca-district-svg" style="width: 100%; max-width: 640px; height: 720px; display: block;"></svg>!}
+{!<svg id="ca-district-svg" style="width: 640px; height: 720px;"></svg>!}
