@@ -131,4 +131,3 @@ A test run of the district map, driven by the current national polling numbers i
 
 {!<div id="ca-poll-detail">Click a district on the map above.</div>!}
 
-- @next_scene: Continue
