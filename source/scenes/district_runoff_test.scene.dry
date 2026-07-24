@@ -13,7 +13,7 @@ on-display: {!
         SPD:   { name: "SPD",   color: "#c00000", pos: 0.25 },
         DDP:   { name: Q.ddp_name || "DDP", color: "#D3C24D", pos: 0.45 },
         Z:     { name: "Center", color: "#000000", pos: 0.50 },
-        Other: { name: "Other", color: "#8a8f94", pos: 0.50 },
+        Other: { name: "Other", color: "#8a8f94", pos: 0.55 },
         DVP:   { name: "DVP",   color: "#D5AC27", pos: 0.65 },
         DNVP:  { name: "DNVP",  color: "#3E88B3", pos: 0.80 },
         NSDAP: { name: "NSDAP", color: "#7A3C00", pos: 0.95 }
