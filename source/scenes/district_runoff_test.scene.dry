@@ -40,7 +40,7 @@ on-display: {!
         return { toLo: (hi - x) / range, toHi: (x - lo) / range };
     }
 
-    // Everything here is a SHARE (percentage), never a raw vote count --
+    // Everything here is a SHARE (percentage)
     // there's no discrete-voter concept yet, only interest-group percentages
     // rolling up into the national numbers. Per-district noise stands in for
     // real per-district interest-group combinations until those exist.
