@@ -152,20 +152,29 @@ on-display: {!
             .text(function(d) { return "District " + d.properties.DISTRICT + " — " + PARTIES[d.properties.winnerParty].name; });
 
     // --- seat tally, styled like the Saxony results table ---
-    var seatCounts = {};
-    PARTY_LIST.forEach(function(p) { seatCounts[p] = 0; });
-    geojson.features.forEach(function(f) { seatCounts[f.properties.winnerParty]++; });
-    var totalSeats = geojson.features.length;
+  var tableHtml = "<table><tr><td>Party</td><td>National vote</td><td>Districts won</td><td>Seat share</td></tr>";
 
-    var tableHtml = "<table><tr><td>Party</td><td>National vote</td><td>Districts won</td><td>Seat share</td></tr>";
-    PARTY_LIST.slice().sort(function(a, b) { return NATIONAL_SHARE[b] - NATIONAL_SHARE[a]; }).forEach(function(p) {
-        var seatPct = ((seatCounts[p] / totalSeats) * 100).toFixed(1);
-        tableHtml += "<tr><td><div class='box' style='background-color:" + PARTIES[p].color + "; outline: 2px; outline-style: solid;'> </div> " + PARTIES[p].name + "</td>" +
-            "<td>" + NATIONAL_SHARE[p].toFixed(1) + "%</td>" +
-            "<td>" + seatCounts[p] + "</td><td>" + seatPct + "%</td></tr>";
-    });
-    tableHtml += "</table>";
-    document.getElementById("ca-runoff-tally").innerHTML = tableHtml;
+function renderRow(p) {
+    var seatPct = ((seatCounts[p] / totalSeats) * 100).toFixed(1);
+    return "<tr><td><div class='box' style='background-color:" + PARTIES[p].color + "; outline: 2px; outline-style: solid;'> </div> " + PARTIES[p].name + "</td>" +
+        "<td>" + NATIONAL_SHARE[p].toFixed(1) + "%</td>" +
+        "<td>" + seatCounts[p] + "</td><td>" + seatPct + "%</td></tr>";
+}
+
+// keep PARTY_LIST's own order, just split into two groups
+var withSeats = PARTY_LIST.filter(function(p) { return seatCounts[p] > 0; });
+var withoutSeats = PARTY_LIST.filter(function(p) { return seatCounts[p] === 0; });
+
+withSeats.forEach(function(p) { tableHtml += renderRow(p); });
+
+if (withoutSeats.length) {
+    tableHtml += "<tr><td colspan='4' style='border-top: 2px solid #182430; padding-top: 6px; color: #5c6b78; font-style: italic;'>No districts won</td></tr>";
+}
+
+withoutSeats.forEach(function(p) { tableHtml += renderRow(p); });
+
+tableHtml += "</table>";
+document.getElementById("ca-runoff-tally").innerHTML = tableHtml;
 
     // --- parliament hemicycle, same seat counts ---
     if (window && d3 && d3.parliament) {
