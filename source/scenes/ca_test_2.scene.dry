@@ -1,7 +1,7 @@
 title: District Runoff Test
 subtitle: Map
-view-if: year = 1928 and month >= 2
-new-page: true
+view-if: true
+new-page: year = 1928 and month >= 2
 max-visits: 1
 tags: event
 on-display: {!
@@ -88,7 +88,6 @@ on-display: {!
         return { round1: round1, round2: [finalA, finalB], transfers: transferLog, winner: winner2, decidedRound: 2 };
     }
 
-    // largest-remainder seat allocation, same method as the Saxony scene's allocateSeats()
     function allocateSeats(percentages, totalSeats) {
         var exact = {}, floored = {}, remainders = [], totalFloored = 0;
         for (var party in percentages) {
@@ -112,19 +111,17 @@ on-display: {!
     var districtCount = geojson.features.length;
     var LIST_SEATS = 40;
 
-    // --- draw the main map ---
-    var width = 640, height = 720;
+    // --- fixed internal canvas; responsiveness is handled entirely by the
+    // viewBox + CSS below, so none of these coordinates need to change based
+    // on screen width ---
+    var CANVAS_W = 1000;
+    var MAP_BOX = [[260, 10], [760, 730]]; // [[x0,y0],[x1,y1]] region the main map fits into
+
     var svgEl = document.getElementById("ca-runoff-svg");
-    var contentWidth = document.getElementById("content").offsetWidth;
-    if (contentWidth < width) {
-        width = contentWidth;
-        height = width * (720 / 640);
-    }
-
-    var projection = d3.geoAlbers().fitSize([width, height], geojson);
-    var path = d3.geoPath(projection);
-
     var svg = d3.select("#ca-runoff-svg");
+
+    var projection = d3.geoAlbers().fitExtent(MAP_BOX, geojson);
+    var path = d3.geoPath(projection);
 
     var districtPaths = svg.selectAll("path.district")
         .data(geojson.features, function(d) { return d.properties.DISTRICT; })
@@ -167,9 +164,8 @@ on-display: {!
         document.getElementById("ca-runoff-detail").innerHTML = html;
     }
 
-    // --- inset zoom panels for tightly-packed district clusters ---
-    // districtIds below are stripped of a "CA-" prefix to match this map's
-    // plain-number DISTRICT property.
+    // --- inset zoom panels: much bigger now, living in dedicated margin
+    // space around the main map rather than overlapping it ---
     function addInset(config) {
         var wanted = config.districtIds.map(function(id) { return id.replace("CA-", ""); });
         var insetFeatures = geojson.features.filter(function(d) { return wanted.indexOf(d.properties.DISTRICT) !== -1; });
@@ -178,8 +174,8 @@ on-display: {!
         var insetX = config.x, insetY = config.y, insetW = config.width, insetH = config.height;
 
         svg.append("text")
-            .attr("x", insetX).attr("y", insetY - 6)
-            .attr("font-size", 13).attr("font-weight", "700")
+            .attr("x", insetX).attr("y", insetY - 10)
+            .attr("font-size", 20).attr("font-weight", "700")
             .attr("font-family", "Georgia, serif").attr("fill", "#182430")
             .text(config.label);
 
@@ -188,23 +184,18 @@ on-display: {!
             .attr("width", insetW).attr("height", insetH)
             .attr("viewBox", "0 0 " + insetW + " " + insetH);
 
-        insetPanel.append("rect")
-            .attr("width", insetW).attr("height", insetH)
-            .attr("fill", "#eef1ea").attr("stroke", "#182430").attr("stroke-width", 1.5);
-
-        var insetProjection = d3.geoAlbers().fitSize([insetW - 10, insetH - 10], insetFC);
+        // fit tightly to just these districts -- this is the actual "zoom"
+        var insetProjection = d3.geoAlbers().fitExtent([[8, 8], [insetW - 8, insetH - 8]], insetFC);
         var insetPath = d3.geoPath(insetProjection);
 
-        insetPanel.append("g")
-            .attr("transform", "translate(5,5)")
-            .selectAll("path.district")
+        insetPanel.selectAll("path.district")
             .data(insetFeatures, function(d) { return d.properties.DISTRICT; })
             .join("path")
                 .attr("class", "district")
                 .attr("d", insetPath)
                 .attr("fill", function(d) { return PARTIES[d.properties.winnerParty].color; })
                 .attr("stroke", "#0f1115")
-                .attr("stroke-width", 0.5)
+                .attr("stroke-width", 1)
                 .style("cursor", "pointer")
                 .on("mouseover", function() { d3.select(this).style("opacity", 0.85); })
                 .on("mouseout", function() { d3.select(this).style("opacity", 1); })
@@ -212,6 +203,7 @@ on-display: {!
             .append("title")
                 .text(function(d) { return "District " + d.properties.DISTRICT + " — " + PARTIES[d.properties.winnerParty].name; });
 
+        // bounding box drawn around the source districts on the MAIN map
         var b = path.bounds(insetFC);
         var pad = 6;
         var sx0 = b[0][0] - pad, sy0 = b[0][1] - pad, sx1 = b[1][0] + pad, sy1 = b[1][1] + pad;
@@ -219,8 +211,9 @@ on-display: {!
         svg.append("rect")
             .attr("x", sx0).attr("y", sy0)
             .attr("width", sx1 - sx0).attr("height", sy1 - sy0)
-            .attr("fill", "none").attr("stroke", "#182430").attr("stroke-width", 1.1);
+            .attr("fill", "none").attr("stroke", "#182430").attr("stroke-width", 1.4);
 
+        // funnel lines: corner-to-corner between the source box and the inset panel
         var srcCenter = [(sx0 + sx1) / 2, (sy0 + sy1) / 2];
         var insetCenter = [insetX + insetW / 2, insetY + insetH / 2];
         var dx = insetCenter[0] - srcCenter[0], dy = insetCenter[1] - srcCenter[1];
@@ -232,54 +225,53 @@ on-display: {!
             if (dy > 0) { srcA = [sx0, sy1]; srcB = [sx1, sy1]; } else { srcA = [sx0, sy0]; srcB = [sx1, sy0]; }
             if (dy > 0) { insetA = [insetX, insetY]; insetB = [insetX + insetW, insetY]; } else { insetA = [insetX, insetY + insetH]; insetB = [insetX + insetW, insetY + insetH]; }
         }
-        svg.append("line").attr("x1", srcA[0]).attr("y1", srcA[1]).attr("x2", insetA[0]).attr("y2", insetA[1]).attr("stroke", "#182430").attr("stroke-width", 1.1);
-        svg.append("line").attr("x1", srcB[0]).attr("y1", srcB[1]).attr("x2", insetB[0]).attr("y2", insetB[1]).attr("stroke", "#182430").attr("stroke-width", 1.1);
+        svg.append("line").attr("x1", srcA[0]).attr("y1", srcA[1]).attr("x2", insetA[0]).attr("y2", insetA[1]).attr("stroke", "#182430").attr("stroke-width", 1.4);
+        svg.append("line").attr("x1", srcB[0]).attr("y1", srcB[1]).attr("x2", insetB[0]).attr("y2", insetB[1]).attr("stroke", "#182430").attr("stroke-width", 1.4);
     }
 
     addInset({
         label: "LA — San Diego",
         districtIds: ["CA-53","CA-52","CA-49","CA-47","CA-48","CA-45","CA-42","CA-46","CA-44","CA-41","CA-43","CA-39","CA-38","CA-40","CA-33","CA-37","CA-35","CA-34","CA-32","CA-31","CA-30","CA-28","CA-27","CA-29"],
-        x: width - 240, y: height - 210, width: 220, height: 190
+        x: 10, y: 500, width: 240, height: 230
     });
 
     addInset({
         label: "Bay Area",
         districtIds: ["CA-19","CA-18","CA-17","CA-10","CA-14","CA-15","CA-12","CA-13","CA-11","CA-9"],
-        x: 20, y: 20, width: 190, height: 150
+        x: 770, y: 10, width: 220, height: 190
     });
 
-    // --- 40 party-list seats, 4x10 grid, drawn below the map inside the same svg ---
+    // --- 40 party-list seats, 2x20 circles, below the main map area ---
     var listSeatCounts = allocateSeats(NATIONAL_SHARE, LIST_SEATS);
     var listFlat = [];
     PARTY_LIST.forEach(function(p) {
         for (var i = 0; i < listSeatCounts[p]; i++) listFlat.push(p);
     });
 
-    var gridCols = 10, gridRows = 4, cell = 20, gap = 4;
+    var gridCols = 20, gridRows = 2, cell = 20, gap = 4;
     var gridW = gridCols * (cell + gap) - gap;
-    var gridStartX = (width - gridW) / 2;
-    var gridStartY = height + 30;
-    var gridAreaHeight = gridRows * (cell + gap) - gap + 50;
-    var totalSvgHeight = height + gridAreaHeight;
+    var gridStartX = (CANVAS_W - gridW) / 2;
+    var gridStartY = 740;
+    var gridAreaHeight = gridRows * (cell + gap) - gap + 60;
+    var totalSvgHeight = 740 + gridAreaHeight;
 
-    svgEl.setAttribute("height", totalSvgHeight);
-    svgEl.style.height = ((contentWidth < 640) ? (totalSvgHeight * (contentWidth / 640)) : totalSvgHeight) + "px";
+    svgEl.setAttribute("viewBox", "0 0 " + CANVAS_W + " " + totalSvgHeight);
 
     svg.append("text")
-        .attr("x", width / 2).attr("y", height + 18)
-        .attr("text-anchor", "middle").attr("font-size", 13).attr("font-weight", "700")
+        .attr("x", CANVAS_W / 2).attr("y", gridStartY - 12)
+        .attr("text-anchor", "middle").attr("font-size", 16).attr("font-weight", "700")
         .attr("font-family", "Georgia, serif").attr("fill", "#182430")
         .text("Party list — " + LIST_SEATS + " proportional seats");
 
-    svg.selectAll("rect.list-seat")
+    svg.selectAll("circle.list-seat")
         .data(listFlat)
-        .join("rect")
+        .join("circle")
             .attr("class", "list-seat")
-            .attr("x", function(d, i) { return gridStartX + (i % gridCols) * (cell + gap); })
-            .attr("y", function(d, i) { return gridStartY + Math.floor(i / gridCols) * (cell + gap); })
-            .attr("width", cell).attr("height", cell)
+            .attr("cx", function(d, i) { return gridStartX + (i % gridCols) * (cell + gap) + cell / 2; })
+            .attr("cy", function(d, i) { return gridStartY + Math.floor(i / gridCols) * (cell + gap) + cell / 2; })
+            .attr("r", cell / 2)
             .attr("fill", function(d) { return PARTIES[d].color; })
-            .attr("stroke", "#0f1115").attr("stroke-width", 0.6)
+            .attr("stroke", "#0f1115").attr("stroke-width", 0.8)
         .append("title")
             .text(function(d) { return PARTIES[d].name + " (list seat)"; });
 
@@ -339,7 +331,7 @@ on-display: {!
 
 A test of the top-two runoff system, with district-level and party-list seats combined into one national total.
 
-{!<svg id="ca-runoff-svg" style="width: 100%; max-width: 640px; display: block;"> </svg>!}
+{!<svg id="ca-runoff-svg" style="width: 100%; display: block;"> </svg>!}
 
 **Results:**
 
@@ -350,3 +342,4 @@ A test of the top-two runoff system, with district-level and party-list seats co
 **District detail**
 
 {!<div id="ca-runoff-detail">Click a district on the map above.</div>!}
+
