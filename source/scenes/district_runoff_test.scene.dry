@@ -10,15 +10,15 @@ on-display: {!
 
     var PARTIES = {
         KPD:   { name: "KPD",   color: "#700000", pos: 0.05 },
-        SPD:   { name: "SPD",   color: "#c00000", pos: 0.25 },
+        SPD:   { name: "SPD",   color: "#c00000", pos: 0.35 },
         DDP:   { name: Q.ddp_name || "DDP", color: "#D3C24D", pos: 0.45 },
         Z:     { name: "Center", color: "#000000", pos: 0.50 },
-        Other: { name: "Other", color: "#8a8f94", pos: 0.50 },
+        Other: { name: "Other", color: "#8a8f94", pos: 0.60 },
         DVP:   { name: "DVP",   color: "#D5AC27", pos: 0.65 },
         DNVP:  { name: "DNVP",  color: "#3E88B3", pos: 0.80 },
         NSDAP: { name: "NSDAP", color: "#7A3C00", pos: 0.95 }
     };
-    var PARTY_LIST = ["KPD","SPD","DDP","Z","Other","DVP","DNVP","NSDAP"];
+    var PARTY_LIST = ["KPD","SPD","DDP","Z","DVP","Other","DNVP","NSDAP"];
 
     // Real national polling, same qualities the Saxony scene uses.
     var NATIONAL_SHARE = {
@@ -152,19 +152,20 @@ on-display: {!
             .text(function(d) { return "District " + d.properties.DISTRICT + " — " + PARTIES[d.properties.winnerParty].name; });
 
     // --- seat tally, styled like the Saxony results table ---
-    
-    var tableHtml = "<table>";
-    tableHtml += "<tr><td>Party</td><td>Vote share</td><td>Districts won</td></tr>";
-    for (var k3 in PARTIES) {
-        if (!seatCounts[k3]) continue;
-        var voteShare = ((partyShare[k3] / totalShare) * 100).toFixed(1);
-        var seatShare = ((seatCounts[k3] / totalSeats) * 100).toFixed(1);
-        tableHtml += "<tr><td><div class='box' style='background-color:" + PARTIES[k3].color + "; outline: 2px; outline-style: solid;'> </div> </td>" +
-            "<td>" + PARTIES[k3].name + ": " + voteShare + "%</td>" +
-            "<td>" + seatCounts[k3] + " (" + seatShare + "%)</td></tr>";
-    }
+    var seatCounts = {};
+    PARTY_LIST.forEach(function(p) { seatCounts[p] = 0; });
+    geojson.features.forEach(function(f) { seatCounts[f.properties.winnerParty]++; });
+    var totalSeats = geojson.features.length;
+
+    var tableHtml = "<table><tr><td>Party</td><td>National vote</td><td>Districts won</td><td>Seat share</td></tr>";
+    PARTY_LIST.slice().sort(function(a, b) { return NATIONAL_SHARE[b] - NATIONAL_SHARE[a]; }).forEach(function(p) {
+        var seatPct = ((seatCounts[p] / totalSeats) * 100).toFixed(1);
+        tableHtml += "<tr><td><div class='box' style='background-color:" + PARTIES[p].color + "; outline: 2px; outline-style: solid;'> </div> " + PARTIES[p].name + "</td>" +
+            "<td>" + NATIONAL_SHARE[p].toFixed(1) + "%</td>" +
+            "<td>" + seatCounts[p] + "</td><td>" + seatPct + "%</td></tr>";
+    });
     tableHtml += "</table>";
-    document.getElementById("ca-poll-tally").innerHTML = tableHtml;
+    document.getElementById("ca-runoff-tally").innerHTML = tableHtml;
 
     // --- parliament hemicycle, same seat counts ---
     if (window && d3 && d3.parliament) {
@@ -205,4 +206,3 @@ A test of the top-two runoff system, with eliminated parties' voters transferrin
 **District detail**
 
 {!<div id="ca-runoff-detail">Click a district on the map above.</div>!}
-
