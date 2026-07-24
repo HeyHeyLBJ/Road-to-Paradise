@@ -1,7 +1,7 @@
 @DistrictRunoffTest
 title: District Runoff Test
 subtitle: Map
-view-if: year = 1928 and month >= 2
+view-if: year = 1930 and month >= 6
 new-page: true
 max-visits: 1
 tags: event
