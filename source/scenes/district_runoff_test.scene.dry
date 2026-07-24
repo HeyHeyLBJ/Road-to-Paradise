@@ -151,40 +151,35 @@ on-display: {!
         .append("title")
             .text(function(d) { return "District " + d.properties.DISTRICT + " — " + PARTIES[d.properties.winnerParty].name; });
 
- 
-
-
-   // --- seat tally, styled like the Saxony results table ---
+    // --- seat tally, styled like the Saxony results table ---
     var seatCounts = {};
     PARTY_LIST.forEach(function(p) { seatCounts[p] = 0; });
     geojson.features.forEach(function(f) { seatCounts[f.properties.winnerParty]++; });
     var totalSeats = geojson.features.length;
 
-   
-function renderRow(p) {
-    var seatPct = ((seatCounts[p] / totalSeats) * 100).toFixed(1);
-    return "<tr><td><div class='box' style='background-color:" + PARTIES[p].color + "; outline: 2px; outline-style: solid;'> </div> " + PARTIES[p].name + "</td>" +
-        "<td>" + NATIONAL_SHARE[p].toFixed(1) + "%</td>" +
-        "<td>" + seatCounts[p] + "</td><td>" + seatPct + "%</td></tr>";
-}
+    var tableHtml = "<table><tr><td>Party</td><td>National vote</td><td>Districts won</td><td>Seat share</td></tr>";
 
-// keep PARTY_LIST's own order, just split into two groups
-var withSeats = PARTY_LIST.filter(function(p) { return seatCounts[p] > 0; });
-var withoutSeats = PARTY_LIST.filter(function(p) { return seatCounts[p] === 0; });
+    function renderRow(p) {
+        var seatPct = ((seatCounts[p] / totalSeats) * 100).toFixed(1);
+        return "<tr><td><div class='box' style='background-color:" + PARTIES[p].color + "; outline: 2px; outline-style: solid;'> </div> " + PARTIES[p].name + "</td>" +
+            "<td>" + NATIONAL_SHARE[p].toFixed(1) + "%</td>" +
+            "<td>" + seatCounts[p] + "</td><td>" + seatPct + "%</td></tr>";
+    }
 
-withSeats.forEach(function(p) { tableHtml += renderRow(p); });
+    // keep PARTY_LIST's own order, just split into two groups
+    var withSeats = PARTY_LIST.filter(function(p) { return seatCounts[p] > 0; });
+    var withoutSeats = PARTY_LIST.filter(function(p) { return seatCounts[p] === 0; });
 
-if (withoutSeats.length) {
-    tableHtml += "<tr><td colspan='4' style='border-top: 2px solid #182430; padding-top: 6px; color: #5c6b78; font-style: italic;'>No districts won</td></tr>";
-}
+    withSeats.forEach(function(p) { tableHtml += renderRow(p); });
 
-withoutSeats.forEach(function(p) { tableHtml += renderRow(p); });
+    if (withoutSeats.length) {
+        tableHtml += "<tr><td colspan='4' style='border-top: 2px solid #182430; padding-top: 6px; color: #5c6b78; font-style: italic;'>No districts won</td></tr>";
+    }
 
-tableHtml += "</table>";
-document.getElementById("ca-runoff-tally").innerHTML = tableHtml;
+    withoutSeats.forEach(function(p) { tableHtml += renderRow(p); });
 
-
-
+    tableHtml += "</table>";
+    document.getElementById("ca-runoff-tally").innerHTML = tableHtml;
 
     // --- parliament hemicycle, same seat counts ---
     if (window && d3 && d3.parliament) {
@@ -225,4 +220,3 @@ A test of the top-two runoff system, with eliminated parties' voters transferrin
 **District detail**
 
 {!<div id="ca-runoff-detail">Click a district on the map above.</div>!}
-
