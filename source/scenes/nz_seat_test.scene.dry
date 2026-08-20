@@ -4,7 +4,15 @@ view-if: year = 1928 and month = 2
 new-page: true
 max-visits: 1
 tags: event
-on-display: {!
+on-display:
+{!const toolsWrapper = document.getElementById('tools_wrapper');
+if (toolsWrapper) {
+  toolsWrapper.style.display = 'none';
+}
+const elements = document.querySelectorAll('header, #content, footer');
+elements.forEach(el => {
+  el.style.maxWidth = '700px';
+});
     var PARTIES = {
         KPD:   { name: "KPD",    color: "#700000" },
         SPD:   { name: "SPD",    color: "#c00000" },
