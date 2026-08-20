@@ -112,11 +112,11 @@ on-display: {!
 
 A test of allocating national seats onto an imported hemicycle SVG, with the largest party giving up one seat to the Speaker.
 
-{!<div id="nz-parliament-svg-holder" style="max-width: 800px;">
+{!<div id="nz-parliament-svg-holder" style="max-width: 911.93494px;">
 <svg
    version="1.1"
    id="svg2"
-   width="911.93494"
+   width="800" /911.93494
    height="648.90344"
    viewBox="0 0 911.93494 648.90344"
    xml:space="preserve"
@@ -649,7 +649,7 @@ A test of allocating national seats onto an imported hemicycle SVG, with the lar
      id="S13"
      cx="254.00388"
      cy="490.67432"
-     r="18.900463" /><circle
+     r="18.900463" 
      style="fill:#fde401;fill-opacity:1;stroke-width:1.8396;stroke-opacity:0.630282"
      id="S7"
      cx="157.92902"
@@ -664,7 +664,7 @@ A test of allocating national seats onto an imported hemicycle SVG, with the lar
      id="S4"
      cx="106.72925"
      cy="490.42792"
-     r="18.900463" /><circle
+     r="18.900463" 
      style="fill:#00529f;fill-opacity:1;stroke-width:1.8396;stroke-opacity:0.630282"
      id="S28"
      cx="522.1051"
