@@ -4,17 +4,15 @@ view-if: year = 1928 and month = 2
 new-page: true
 max-visits: 1
 tags: event
-on-arrival:
-{!const toolsWrapper = document.getElementById('tools_wrapper');
-if (toolsWrapper) {
-  toolsWrapper.style.display = 'none';
-}
-const elements = document.querySelectorAll('header, #content, footer');
-elements.forEach(el => {
-  el.style.maxWidth = '700px';
-});
-
-on-display:{!
+on-display: {!
+    var toolsWrapper = document.getElementById('tools_wrapper');
+    if (toolsWrapper) {
+        toolsWrapper.style.display = 'none';
+    }
+    var wideElements = document.querySelectorAll('header, #content, footer');
+    wideElements.forEach(function(el) {
+        el.style.maxWidth = '700px';
+    });
 
     var PARTIES = {
         KPD:   { name: "KPD",    color: "#700000" },
@@ -647,7 +645,6 @@ A test of allocating national seats onto an imported hemicycle SVG, with the lar
      cx="202.50294"
      cy="490.39453"
      r="18.900463"
-     transform="scale(1,-1)" /><circle
      style="fill:#00529f;fill-opacity:1;stroke-width:1.8396;stroke-opacity:0.630282"
      id="S13"
      cx="254.00388"
@@ -663,7 +660,6 @@ A test of allocating national seats onto an imported hemicycle SVG, with the lar
      cx="61.808304"
      cy="490.46136"
      r="18.900463"
-     transform="scale(1,-1)" /><circle
      style="fill:#fde401;fill-opacity:1;stroke-width:1.8396;stroke-opacity:0.630282"
      id="S4"
      cx="106.72925"
@@ -713,4 +709,3 @@ A test of allocating national seats onto an imported hemicycle SVG, with the lar
 **Results:**
 
 {!<div id="nz-seat-tally"></div>!}
-
