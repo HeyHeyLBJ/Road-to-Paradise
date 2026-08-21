@@ -11,7 +11,7 @@ on-display: {!
     }
     var wideElements = document.querySelectorAll('header, #content, footer');
     wideElements.forEach(function(el) {
-        el.style.maxWidth = '911.93494px';
+        el.style.maxWidth = '800px';
     });
 
     var PARTIES = {
@@ -95,7 +95,6 @@ on-display: {!
         var seatPct = ((seatCounts[p] / TOTAL_SEATS) * 100).toFixed(1);
         var isSpeakerParty = p === largestParty;
         return "<tr><td><div class='box' style='background-color:" + PARTIES[p].color + "; outline: 2px; outline-style: solid;'> </div> " + PARTIES[p].name +
-            (isSpeakerParty ? " (+ Speaker)" : "") + "</td>" +
             "<td>" + NATIONAL_SHARE[p].toFixed(1) + "%</td>" +
             "<td>" + seatCounts[p] + (isSpeakerParty ? " + 1" : "") + "</td><td>" + seatPct + "%</td></tr>";
     }
@@ -110,9 +109,9 @@ on-display: {!
     document.getElementById("nz-seat-tally").innerHTML = tableHtml;
 !}
 
-A test of allocating national seats onto an imported hemicycle SVG, with the largest party giving up one seat to the Speaker.
+An SVG test of allocating seats onto an imported hemicycle SVG, with the largest party gaining the Speakership.
 
-{!<div id="nz-parliament-svg-holder" style="max-width: 911.93494px;">
+{!<div id="nz-parliament-svg-holder" style="max-width: 800px;">
 <svg
    version="1.1"
    id="svg2"
